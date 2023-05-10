@@ -1,3 +1,4 @@
+/* eslint-disable */
 import AlertBox from "@/components/elements/AlertBox";
 import {
   jwtSuccess,
