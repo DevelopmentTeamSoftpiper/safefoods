@@ -46,7 +46,7 @@ const orderSchema = new mongoose.Schema(
     },
 
     shipping_cost: {
-      type: string,
+      type: String,
       required: true,
     },
     order_notes: {
