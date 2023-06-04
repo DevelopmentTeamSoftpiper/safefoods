@@ -175,20 +175,21 @@ const checkout = () => {
     //   router.push("/success");
     //   setIsLoading(false);
 
-    // } catch (error) {
-    //   console.log(error);
-    //   toast.error(error.error.message, {
-    //     position: "top-right",
-    //     autoClose: 5000,
-    //     hideProgressBar: false,
-    //     closeOnClick: true,
+    } catch (error) {
+      console.log(error);
+      toast.error(error.error.message, {
+        position: "top-right",
+        autoClose: 5000,
+        hideProgressBar: false,
+        closeOnClick: true,
 
-    //     draggable: true,
-    //     progress: undefined,
-    //     theme: "dark",
-    //   });
-    //   setIsLoading(false);
-    // }
+        draggable: true,
+        progress: undefined,
+        theme: "dark",
+      });
+      setIsLoading(false);
+    }
+
 
   };
 
