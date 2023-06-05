@@ -1,12 +1,31 @@
 import PageArticles from "@/components/elements/PageArticles";
 import { fetchDataFromApi, getData } from "@/utils/api";
+import axios from "axios";
 import Link from "next/link";
-import React from "react";
+import { useRouter } from "next/router";
+import React, { useEffect, useState } from "react";
 
-const BlogCategory = ({ blogCategories, blogCats, slug }) => {
-  console.log("blog cat", blogCategories);
-  console.log("blogs", blogCats);
-  // console.log('slug', slug);blogCats
+const BlogCategory = ({slug}) => {
+  console.log(slug)
+  const [blogCats, setBlogCats] = useState(null);
+  const [blogCategories, setBlogCategories] = useState(null);
+  const fetchCatBlogs = async()=>{
+    const blogCats = await axios.get(`/api/admin/sub-blog/getBlogs?slug=${slug}`)
+    console.log(blogCats);
+    setBlogCats(blogCats);
+
+  }
+  const fetchCategories = async()=>{
+    const blogCategory = await axios.get("/api/admin/sub-blog/getAll")
+    console.log(blogCategory);
+    setBlogCategories(blogCategory);
+
+  }
+  useEffect(()=>{
+    fetchCatBlogs();
+    fetchCategories();
+  },[slug])
+
   return (
     <main className="main px-5">
       <div
@@ -42,7 +61,7 @@ const BlogCategory = ({ blogCategories, blogCats, slug }) => {
         <div className="container">
           <div className="row">
             <div className="col-lg-9">
-              {blogCats?.blogs?.map((blog) => (
+              {blogCats?.data?.blogs?.map((blog) => (
                 <PageArticles key={blog?._id} blog={blog} />
               ))}
 
@@ -116,7 +135,7 @@ const BlogCategory = ({ blogCategories, blogCats, slug }) => {
                   <h3 className="widget-title">Categories</h3>
                   {/* End .widget-title */}
                   <ul>
-                  {blogCategories?.subBlogs?.map((cat)=>(
+                  {blogCategories?.data?.subBlogs?.map((cat)=>(
                       <li key={cat?.id}>
                       <a href={`/blogs/category/${cat?.slug}`}>
                         {cat?.title}
@@ -142,33 +161,7 @@ const BlogCategory = ({ blogCategories, blogCats, slug }) => {
 
 export default BlogCategory;
 
-export async function getStaticPaths() {
-  const blogCats = await getData("/api/admin/sub-blog/getAll");
-  const paths = blogCats?.subBlogs?.map((p) => ({
-    params: {
-      slug: p.slug,
-    },
-  }));
-
-  return {
-    paths,
-    fallback: false,
-  };
-}
-
-// `getStaticPaths` requires using `getStaticProps`
-export async function getStaticProps({ params: { slug } }) {
-  const blogCategories =await getData("/api/admin/sub-blog/getAll");
-  const blogCats = await getData(
-    `/api/admin/sub-blog/getBlogs?slug=${slug}`
-  );
-
-  return {
-    props: {
-      blogCategories,
-
-      slug,
-      blogCats,
-    },
-  };
-}
+export const getServerSideProps = async (context) => {
+  const { slug } = context.query;
+  return { props: { slug:slug } };
+};

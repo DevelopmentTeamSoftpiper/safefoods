@@ -143,7 +143,7 @@ const Blog = ({blogs,blogCats}) => {
 export default Blog
 
 
-export async function getStaticProps(context) {
+export async function getServerSideProps(context) {
   const blogs = await getData("/api/admin/blog/getAll");
   const blogCats=  await getData(
     `/api/admin/sub-blog/getAll`

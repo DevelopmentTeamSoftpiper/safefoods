@@ -1,12 +1,45 @@
 import { fetchDataFromApi, getData } from "@/utils/api";
+import axios from "axios";
 import Image from "next/image";
 import Link from "next/link";
+import { useRouter } from "next/router";
 import React from "react";
+import { useState } from "react";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-const SingleBlog = ({ blog, relatedBlogs, slug ,blogCats}) => {
-  console.log(" BlogCats", relatedBlogs);
-  const bl = blog?.blog;
+const SingleBlog = ({ slug }) => {
+
+
+  
+
+  const [blogCats, setBlogCats] = useState(null);
+  const [relatedBlogs, setRelatedBlogs] = useState(null);
+  const [blog, setBlog] = useState(null);
+  const fetchBlog = async()=>{
+    const blog = await axios.get(`/api/admin/blog/find?slug=${slug}`)
+    console.log(blog);
+    setBlog(blog);
+
+  }
+  const fetchCatBlogs = async()=>{
+    const blogCats = await axios.get("/api/admin/sub-blog/getAll")
+    console.log(blogCats);
+    setBlogCats(blogCats);
+
+  }
+  const fetchRelatedBlogs = async()=>{
+    const relatedBlogs = await axios.get("/api/admin/blog/getAll")
+    console.log(relatedBlogs);
+    setRelatedBlogs(relatedBlogs);
+
+  }
+  useEffect(()=>{
+    fetchCatBlogs();
+    fetchBlog();
+    fetchRelatedBlogs();
+  },[slug])
+
+  const bl = blog?.data?.blog;
   const htmlContent = bl?.content;
   return (
     <main className="main px-5">
@@ -62,60 +95,30 @@ const SingleBlog = ({ blog, relatedBlogs, slug ,blogCats}) => {
                   </div>
                   {/* End .entry-cats */}
                   <div className="entry-content editor-content">
-                    {/* <p>
-                      <ReactMarkdown>{bl?.content}</ReactMarkdown>
-                    </p> */}
                      <div dangerouslySetInnerHTML={{ __html: htmlContent }} />
                   </div>
                 </div>
-                {/* End .entry-body */}
               </article>
             </div>
-            {/* End .col-lg-9 */}
             <aside className="col-lg-3">
               <div className="sidebar">
-                {/* <div className="widget widget-search">
-                  <h3 className="widget-title">Search</h3>
-             
-                  <form action="#">
-                    <label htmlFor="ws" className="sr-only">
-                      Search in blog
-                    </label>
-                    <input
-                      type="search"
-                      className="form-control"
-                      name="ws"
-                      id="ws"
-                      placeholder="Search in blog"
-                      required=""
-                    />
-                    <button type="submit" className="btn">
-                      <i className="icon-search" />
-                      <span className="sr-only">Search</span>
-                    </button>
-                  </form>
-                </div> */}
-                {/* End .widget */}
+
                 <div className="widget widget-cats">
                   <h3 className="widget-title">Categories</h3>
-                  {/* End .widget-title */}
                   <ul>
-                  {blogCats?.subBlogs?.map((cat)=>(
+                  {blogCats?.data?.subBlogs?.map((cat)=>(
                       <li key={cat?.id}>
                       <a href={`/blogs/category/${cat?.slug}`}>
                         {cat?.title}
                       </a>
                     </li>
                   ))}
-   
                   </ul>
                 </div>
-                {/* End .widget */}
                 <div className="widget">
                   <h3 className="widget-title">Popular Posts</h3>
-                  {/* End .widget-title */}
                   <ul className="posts-list">
-                   {relatedBlogs?.blogs?.map((rb)=>(
+                   {relatedBlogs?.data?.blogs?.map((rb)=>(
                      <li key={rb?._id}>
                      <figure>
                        <Link href={`/blogs/${rb?.slug}`}>
@@ -134,58 +137,55 @@ const SingleBlog = ({ blog, relatedBlogs, slug ,blogCats}) => {
                        </h4>
                      </div>
                    </li>
-                   ))}
-      
+                   ))}    
                   </ul>
-                  {/* End .posts-list */}
                 </div>
-                {/* End .widget */}
               </div>
-              {/* End .sidebar sidebar-shop */}
             </aside>
-            {/* End .col-lg-3 */}
           </div>
-          {/* End .row */}
         </div>
-        {/* End .container */}
       </div>
-      {/* End .page-content */}
     </main>
   );
 };
 
 export default SingleBlog;
 
-export async function getStaticPaths() {
-  const blogs = await getData("/api/admin/blog/getAll");
-  const paths = blogs?.blogs?.map((p) => ({
-    params: {
-      slug: p.slug,
-    },
-  }));
+// export async function getStaticPaths() {
+//   const blogs = await getData("/api/admin/blog/getAll");
+//   const paths = blogs?.blogs?.map((p) => ({
+//     params: {
+//       slug: p?.slug.toString(),
+//     },
+//   }));
 
-  return {
-    paths,
-    fallback: false,
-  };
-}
+//   return {
+//     paths,
+//     fallback: false,
+//   };
+// }
 
 // `getStaticPaths` requires using `getStaticProps`
-export async function getStaticProps({ params: { slug } }) {
-  const blog = await getData(
-    `/api/admin/blog/find?slug=${slug}`
-  );
-  const blogCats=  await getData(
-    `/api/admin/sub-blog/getAll`
-  );
-  const relatedBlogs = await getData("/api/admin/blog/getAll");
+// export async function getStaticProps({ params: { slug } }) {
+//   const blog = await getData(
+//     `/api/admin/blog/find?slug=${slug}`
+//   );
+//   const blogCats=  await getData(
+//     `/api/admin/sub-blog/getAll`
+//   );
+//   const relatedBlogs = await getData("/api/admin/blog/getAll");
 
-  return {
-    props: {
-      blog,
-      relatedBlogs,
-      slug,
-      blogCats
-    },
-  };
-}
+//   return {
+//     props: {
+//       blog,
+//       relatedBlogs,
+//       slug,
+//       blogCats
+//     },
+//   };
+// }
+
+export const getServerSideProps = async (context) => {
+  const { slug } = context.query;
+  return { props: { slug:slug } };
+};

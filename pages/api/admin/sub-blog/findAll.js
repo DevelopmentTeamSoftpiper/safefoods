@@ -1,20 +1,20 @@
 import { createRouter } from "next-connect";
 import db from "@/utils/db";
-import Product from "@/models/Products";
 import applyCors from "@/middleware/cors";
+import SubBlog from "@/models/SubBlog";
 
 const router = createRouter();
 
 router.get(async (req, res) => {
   try {
     db.connectDb();
-    const products = await Product.find({}).sort({ updatedAt: -1 });
+    const subBlog = await SubBlog.find();
     db.disconnectDb();
     return res.json({
-      products: products,
+      subBlogs: subBlog,
     });
   } catch (error) {
-    res.json({ message: error.message });
+    res.status(500).json({ message: error.message });
   }
 });
 

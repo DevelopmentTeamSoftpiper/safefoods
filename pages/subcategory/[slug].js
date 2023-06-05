@@ -12,33 +12,47 @@ import axios from "axios";
 import Image from "next/image";
 const maxResult = 3;
 
-const SubCategoryProduct = ({ subCategory, products, slug }) => {
-    console.log(products);
-    const [pageIndex, setPageIndex] = useState(1);
-    const { query } = useRouter();
+const SubCategoryProduct = ({ slug }) => {
+    // console.log(products);
+    // const [pageIndex, setPageIndex] = useState(1);
+    // const { query } = useRouter();
   
-    useEffect(() => {
-      setPageIndex(1);
-    }, [query]);
+    // useEffect(() => {
+    //   setPageIndex(1);
+    // }, [query]);
   
-    const { data, error, isLoading } = useSWR(
-      `/api/products?populate=*&[filters][sub_category][slug][$eq]=${slug}&pagination[page]=${pageIndex}&pagination[pageSize]=${maxResult}`,
-      fetchDataFromApi,
-      {
-        fallbackData: products,
-      }
-    );
+    // const { data, error, isLoading } = useSWR(
+    //   `/api/products?populate=*&[filters][sub_category][slug][$eq]=${slug}&pagination[page]=${pageIndex}&pagination[pageSize]=${maxResult}`,
+    //   fetchDataFromApi,
+    //   {
+    //     fallbackData: products,
+    //   }
+    // );
 
     const [categories, setCategories] = useState(null);
+    const [subCategory, setSubCategory]= useState(null);
+    const [products, setProducts] = useState(null);
+
     const fetchCategories = async () => {
       const {data} = await axios.get("http://localhost:3000/api/admin/category/getAll");
       setCategories(data);
     };
+
+    const fetchSubCategory = async () => {
+      const subCategory = await axios.get(`/api/admin/sub-category/find?slug=${slug}`);
+      setSubCategory(subCategory);
+    };
+    const fetchProducts = async () => {
+      const products = await axios.get( `/api/admin/sub-category/getProducts?slug=${slug}`);
+      setProducts(products);
+    };
     useEffect(() => {
       fetchCategories();
+      fetchSubCategory();
+      fetchProducts();
     }, []);
 
-
+console.log(subCategory);
     const showToastMsg =(data)=>{
       toast.success(data.msg, {
         position: "top-right",
@@ -59,7 +73,7 @@ const SubCategoryProduct = ({ subCategory, products, slug }) => {
     >
       <div className="container">
         <h1 className="page-title">
-        {subCategory?.subCategory.name}<span>Shop</span>
+        {subCategory?.data?.subCategory.name}<span>Shop</span>
         </h1>
       </div>
       {/* End .container */}
@@ -75,7 +89,7 @@ const SubCategoryProduct = ({ subCategory, products, slug }) => {
             {/* <Link href={`/category/${subCategory?.slug}`}>{category?.data?.[0]?.attributes?.category?.data?.attributes?.name}</Link> */}
           </li>
           <li className="breadcrumb-item active" aria-current="page">
-          {subCategory?.subCategory?.name}
+          {subCategory?.data?.subCategory?.name}
           </li>
         </ol>
       </div>
@@ -90,7 +104,7 @@ const SubCategoryProduct = ({ subCategory, products, slug }) => {
             {/* End .toolbox */}
             <div className="products mb-3">
               <div className="row justify-content-center">
-              {products?.products?.map((product) => (
+              {products?.data?.products?.map((product) => (
           <div key={product?.id} className="col-6 col-md-4 col-lg-4 col-xl-3">
             <ProductCard key={product?.id} data={product} showToastMsg={showToastMsg} />
           </div>
@@ -180,35 +194,39 @@ const SubCategoryProduct = ({ subCategory, products, slug }) => {
 
 export default SubCategoryProduct
 
-export async function getStaticPaths() {
-    const subcategories = await getData("/api/admin/sub-category/getAll");
-    const paths = subcategories?.subcategories?.map((c) => ({
-      params: {
-        slug: c.slug,
-      },
-    }));
+// export async function getStaticPaths() {
+//     const subcategories = await getData("/api/admin/sub-category/getAll");
+//     const paths = subcategories?.subcategories?.map((c) => ({
+//       params: {
+//         slug: c.slug,
+//       },
+//     }));
   
-    return {
-      paths,
-      fallback: false,
-    };
-  }
+//     return {
+//       paths,
+//       fallback: false,
+//     };
+//   }
   
   // `getStaticPaths` requires using `getStaticProps`
-  export async function getStaticProps({ params: { slug } }) {
-    const subCategory = await getData(
-      `/api/admin/sub-category/find?slug=${slug}`
-    );
-    const products = await getData(
-      `/api/admin/sub-category/getProducts?slug=${slug}`
-    );
+  // export async function getStaticProps({ params: { slug } }) {
+  //   const subCategory = await getData(
+  //     `/api/admin/sub-category/find?slug=${slug}`
+  //   );
+  //   const products = await getData(
+  //     `/api/admin/sub-category/getProducts?slug=${slug}`
+  //   );
   
-    return {
-      props: {
-        subCategory,
-        products,
-        slug,
-      },
-    };
-  }
+  //   return {
+  //     props: {
+  //       subCategory,
+  //       products,
+  //       slug,
+  //     },
+  //   };
+  // }
   
+  export const getServerSideProps = async (context) => {
+    const { slug } = context.query;
+    return { props: { slug:slug } };
+  };

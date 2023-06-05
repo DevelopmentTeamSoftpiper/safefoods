@@ -9,10 +9,24 @@ import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import LatestProduct from "@/components/home/LatestProduct";
 import RelatedProducts from "@/components/product/RelatedProduct";
+import { useEffect } from "react";
+import axios from "axios";
 
-const ProductDetails = ({ product }) => {
+const ProductDetails = ({ slug }) => {
+  const [product, setProduct]= useState(null);
+
+const fetchProducts = async () => {
+  const product = await axios.get( `/api/admin/product/find?slug=${slug}`);
   console.log(product);
-  const p = product?.product;
+  setProduct(product);
+};
+
+useEffect(() => {
+  fetchProducts();
+
+}, [slug]);
+  console.log(product);
+  const p = product?.data?.product;
   const dispatch = useDispatch();
   const showToastMessage =(data)=>{
     toast.success(data.msg, {
@@ -214,34 +228,39 @@ const ProductDetails = ({ product }) => {
 
 export default ProductDetails;
 
-export async function getStaticPaths() {
-  const products = await getData("/api/admin/product/getAll");
-  const paths = products?.products?.map((p) => ({
-    params: {
-      slug: p?.slug,
-    },
-  }));
+// export async function getStaticPaths() {
+//   const products = await getData("/api/admin/product/getAll");
+//   const paths = products?.products?.map((p) => ({
+//     params: {
+//       slug: p?.slug,
+//     },
+//   }));
 
-  return {
-    paths,
-    fallback: false,
-  };
-}
+//   return {
+//     paths,
+//     fallback: false,
+//   };
+// }
 
 // `getStaticPaths` requires using `getStaticProps`
-export async function getStaticProps({ params: { slug } }) {
-  const product = await getData(
-    `/api/admin/product/find?slug=${slug}`
-  );
-  // const products = await fetchDataFromApi(
-  //   `/api/products?populate=*&[filters][slug][$ne]=${slug}`
-  // );
+// export async function getStaticProps({ params: { slug } }) {
+//   const product = await getData(
+//     `/api/admin/product/find?slug=${slug}`
+//   );
+//   // const products = await fetchDataFromApi(
+//   //   `/api/products?populate=*&[filters][slug][$ne]=${slug}`
+//   // );
 
-  return {
-    props: {
-      product,
-      // products,
-      slug,
-    },
-  };
-}
+//   return {
+//     props: {
+//       product,
+//       // products,
+//       slug,
+//     },
+//   };
+// }
+
+export const getServerSideProps = async (context) => {
+  const { slug } = context.query;
+  return { props: { slug:slug } };
+};

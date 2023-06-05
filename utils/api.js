@@ -52,7 +52,7 @@ export const getData = async (endpoint) => {
         method: "GET",
     };
 
-    const res = await fetch(`http://localhost:3000${endpoint}`, options);
+    const res = await fetch(`${process.env.NEXT_PUBLIC_API_URL}${endpoint}`, options);
     const data = await res?.json();
 
     return data;

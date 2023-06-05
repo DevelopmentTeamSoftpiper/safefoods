@@ -182,7 +182,7 @@ export default Shop
 
 
 // `getStaticPaths` requires using `getStaticProps`
-export async function getStaticProps() {
+export async function getServerSideProps() {
   const products = await getData(
   "/api/admin/product/getAll"
   );

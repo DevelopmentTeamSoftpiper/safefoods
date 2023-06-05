@@ -10,7 +10,7 @@ const router = createRouter();
 router.get(async (req, res) => {
   try {
     db.connectDb();
-    const blogs = await Blog.find({}).populate('subBlog')
+    const blogs = await Blog.find({})
       .sort({ updatedAt: -1 });
     db.disconnectDb();
     return res.json({

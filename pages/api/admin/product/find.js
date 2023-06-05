@@ -12,7 +12,7 @@ router.get(async(req, res)=>{
       const { slug } = req.query;
         db.connectDb();
 
-        const found = await Product.findOne({slug:slug}).populate("category").populate("subCategory");
+        const found = await Product.findOne({slug:slug});
         db.disconnectDb();
         if(found){
           return res.json({

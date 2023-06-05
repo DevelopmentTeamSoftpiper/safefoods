@@ -13,34 +13,46 @@ import axios from "axios";
 import Image from "next/image";
 const maxResult = 3;
 
-const CategoryProduct = ({ category, products, slug }) => {
-  console.log(category);
-  const [pageIndex, setPageIndex] = useState(1);
-  const { query } = useRouter();
+const CategoryProduct = ({ slug }) => {
 
-  useEffect(() => {
-    setPageIndex(1);
-  }, [query]);
+  // const [pageIndex, setPageIndex] = useState(1);
+  // const { query } = useRouter();
 
-  const { data, error, isLoading } = useSWR(
-    `/api/products?populate=*&[filters][category][slug][$eq]=${slug}&pagination[page]=${pageIndex}&pagination[pageSize]=${maxResult}`,
-    fetchDataFromApi,
-    {
-      fallbackData: products,
-    }
-  );
+  // useEffect(() => {
+  //   setPageIndex(1);
+  // }, [query]);
+
+  // const { data, error, isLoading } = useSWR(
+  //   `/api/products?populate=*&[filters][category][slug][$eq]=${slug}&pagination[page]=${pageIndex}&pagination[pageSize]=${maxResult}`,
+  //   fetchDataFromApi,
+  //   {
+  //     fallbackData: products,
+  //   }
+  // );
 
     const [categories, setCategories] = useState(null);
-
+    const [category, setCategory]= useState(null);
+    const [products, setProducts]= useState(null);
   const fetchCategories = async () => {
-    const {data} = await axios.get("http://localhost:3000/api/admin/category/getAll");
+    const {data} = await axios.get("/api/admin/category/getAll");
     setCategories(data);
+  };
+  const fetchCategory = async () => {
+    const category = await axios.get(`/api/admin/category/find?slug=${slug}`);
+    setCategory(category);
+  };
+  const fetchProducts = async () => {
+    const products = await axios.get( `/api/admin/category/getProducts?slug=${slug}`);
+    setProducts(products);
   };
 
   useEffect(() => {
     fetchCategories();
+    fetchCategory();
+    fetchProducts();
+
   }, []);
-  
+  console.log(category);
   const showToastMsg =(data)=>{
     toast.success(data.msg, {
       position: "top-right",
@@ -63,7 +75,7 @@ const CategoryProduct = ({ category, products, slug }) => {
     >
       <div className="container">
         <h1 className="page-title">
-          {category?.category?.name}<span>Shop</span>
+          {category?.data?.category?.name}<span>Shop</span>
         </h1>
       </div>
       {/* End .container */}
@@ -76,7 +88,7 @@ const CategoryProduct = ({ category, products, slug }) => {
             <Link href="/">Home</Link>
           </li>
           <li className="breadcrumb-item">
-            <Link href={`/category/${category?.category?.slug}`}>{category?.category?.name}</Link>
+            <Link href={`/category/${category?.data?.category?.slug}`}>{category?.data?.category?.name}</Link>
           </li>
         </ol>
       </div>
@@ -90,7 +102,7 @@ const CategoryProduct = ({ category, products, slug }) => {
             {/* End .toolbox */}
             <div className="products mb-3">
               <div className="row justify-content-center">
-              {products?.products?.map((product) => (
+              {products?.data?.products?.map((product) => (
           <div key={product?.id} className="col-6 col-md-4 col-lg-4 col-xl-3">
             <ProductCard key={product?.id} data={product} showToastMsg={showToastMsg} />
           </div>
@@ -180,34 +192,39 @@ const CategoryProduct = ({ category, products, slug }) => {
 
 export default CategoryProduct
 
-export async function getStaticPaths() {
-  const categories = await getData("/api/admin/category/getAll");
-  const paths = categories?.categories?.map((c) => ({
-    params: {
-      slug: c?.slug,
-    },
-  }));
+// export async function getStaticPaths() {
+//   const categories = await getData("/api/admin/category/getAll");
+//   const paths = categories?.categories?.map((c) => ({
+//     params: {
+//       slug: c?.slug,
+//     },
+//   }));
 
-  return {
-    paths,
-    fallback: false,
-  };
-}
+//   return {
+//     paths,
+//     fallback: false,
+//   };
+// }
 
 // `getStaticPaths` requires using `getStaticProps`
-export async function getStaticProps({ params: { slug } }) {
-  const category =  await getData(
-    `/api/admin/category/find?slug=${slug}`
-  );
-  const products = await getData(
-    `/api/admin/category/getProducts?slug=${slug}`
-  );
+// export async function getStaticProps({ params: { slug } }) {
+//   const category =  await getData(
+//     `/api/admin/category/find?slug=${slug}`
+//   );
+//   const products = await getData(
+//     `/api/admin/category/getProducts?slug=${slug}`
+//   );
 
-  return {
-    props: {
-      category,
-      products,
-      slug,
-    },
-  };
-}
+//   return {
+//     props: {
+//       category,
+//       products,
+//       slug,
+//     },
+//   };
+// }
+
+export const getServerSideProps = async (context) => {
+  const { slug } = context.query;
+  return { props: { slug:slug } };
+};
