@@ -11,8 +11,12 @@ import LatestProduct from "@/components/home/LatestProduct";
 import RelatedProducts from "@/components/product/RelatedProduct";
 import { useEffect } from "react";
 import axios from "axios";
+import { useRouter } from "next/router";
 
-const ProductDetails = ({ slug }) => {
+const ProductDetails = () => {
+  const router = useRouter();
+  const { slug } = router.query;
+  console.log('slug', slug);
   const [product, setProduct]= useState(null);
 
 const fetchProducts = async () => {

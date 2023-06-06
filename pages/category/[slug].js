@@ -13,8 +13,10 @@ import axios from "axios";
 import Image from "next/image";
 const maxResult = 3;
 
-const CategoryProduct = ({ slug }) => {
-
+const CategoryProduct = () => {
+  const router = useRouter();
+  const { slug } = router.query;
+  console.log('slug', slug);
   // const [pageIndex, setPageIndex] = useState(1);
   // const { query } = useRouter();
 

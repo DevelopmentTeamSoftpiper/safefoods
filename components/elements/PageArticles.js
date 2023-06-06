@@ -39,7 +39,7 @@ const PageArticles = ({blog}) => {
           <div className="entry-cats">
             in 
         
-              <Link key={blog?._id} href={`/blogs/category/${blog?.subBlog?.slug}`} style={{color:'black'}}> | {blog?.subBlog?.title} </Link>
+              <Link key={blog?._id} href={`/blog-cat/${blog?.subBlog?.slug}`} style={{color:'black'}}> | {blog?.subBlog?.title} </Link>
        
             
           </div>

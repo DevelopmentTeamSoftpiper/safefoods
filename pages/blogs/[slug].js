@@ -7,10 +7,12 @@ import React from "react";
 import { useState } from "react";
 import { useEffect } from "react";
 import ReactMarkdown from "react-markdown";
-const SingleBlog = ({ slug }) => {
+const SingleBlog = () => {
 
 
-  
+  const router = useRouter();
+  const { slug } = router.query;
+  console.log('slug', slug);
 
   const [blogCats, setBlogCats] = useState(null);
   const [relatedBlogs, setRelatedBlogs] = useState(null);
@@ -37,7 +39,7 @@ const SingleBlog = ({ slug }) => {
     fetchCatBlogs();
     fetchBlog();
     fetchRelatedBlogs();
-  },[slug])
+  },[])
 
   const bl = blog?.data?.blog;
   const htmlContent = bl?.content;
@@ -90,7 +92,7 @@ const SingleBlog = ({ slug }) => {
                   {/* End .entry-title */}
                   <div className="entry-cats">
                     in   
-              <Link key={bl?.subBlog?.id} href={`/blogs/category/${bl?.subBlog?.slug}`} style={{color:'black'}}> | {bl?.subBlog?.title} </Link>
+              <Link key={bl?.subBlog?.id} href={`/blog-cat/${bl?.subBlog?.slug}`} style={{color:'black'}}> | {bl?.subBlog?.title} </Link>
        
                   </div>
                   {/* End .entry-cats */}
@@ -108,7 +110,7 @@ const SingleBlog = ({ slug }) => {
                   <ul>
                   {blogCats?.data?.subBlogs?.map((cat)=>(
                       <li key={cat?.id}>
-                      <a href={`/blogs/category/${cat?.slug}`}>
+                      <a href={`/blog-cat/${cat?.slug}`}>
                         {cat?.title}
                       </a>
                     </li>
@@ -185,7 +187,7 @@ export default SingleBlog;
 //   };
 // }
 
-export const getServerSideProps = async (context) => {
-  const { slug } = context.query;
-  return { props: { slug:slug } };
-};
+// export const getServerSideProps = async (context) => {
+//   const { slug } = context.query;
+//   return { props: { slug:slug } };
+// };

@@ -5,12 +5,16 @@ import Link from "next/link";
 import { useRouter } from "next/router";
 import React, { useEffect, useState } from "react";
 
-const BlogCategory = ({slug}) => {
-  console.log(slug)
+const BlogCategore = () => {
+  const [catSlug, setCatSlug] = useState(null);
+  const router = useRouter();
+  const { slug } = router.query;
+  
+  console.log('slug', router.query.slug);
   const [blogCats, setBlogCats] = useState(null);
   const [blogCategories, setBlogCategories] = useState(null);
   const fetchCatBlogs = async()=>{
-    const blogCats = await axios.get(`/api/admin/sub-blog/getBlogs?slug=${slug}`)
+    const blogCats = await axios.get(`/api/admin/sub-blog/getBlogs?slug=${catSlug}`)
     console.log(blogCats);
     setBlogCats(blogCats);
 
@@ -22,9 +26,14 @@ const BlogCategory = ({slug}) => {
 
   }
   useEffect(()=>{
-    fetchCatBlogs();
-    fetchCategories();
-  },[slug])
+    setCatSlug(router.query.slug);
+  },[router.query.slug])
+  useEffect(()=>{
+    if(catSlug){
+      fetchCatBlogs();
+      fetchCategories();
+    }
+  },[catSlug])
 
   return (
     <main className="main px-5">
@@ -34,7 +43,7 @@ const BlogCategory = ({slug}) => {
       >
         <div className="container">
           <h1 className="page-title">
-            {slug.toUpperCase()} Blogs
+            {slug?.toUpperCase()} Blogs
           </h1>
         </div>
         {/* End .container */}
@@ -50,7 +59,7 @@ const BlogCategory = ({slug}) => {
               <Link href="/blogs">Blog</Link>
             </li>
             <li className="breadcrumb-item active" aria-current="page">
-            {slug.toUpperCase()}
+            {slug?.toUpperCase()}
             </li>
           </ol>
         </div>
@@ -137,7 +146,7 @@ const BlogCategory = ({slug}) => {
                   <ul>
                   {blogCategories?.data?.subBlogs?.map((cat)=>(
                       <li key={cat?.id}>
-                      <a href={`/blogs/category/${cat?.slug}`}>
+                      <a href={`/blog-cat/${cat?.slug}`}>
                         {cat?.title}
                       </a>
                     </li>
@@ -159,9 +168,9 @@ const BlogCategory = ({slug}) => {
   );
 };
 
-export default BlogCategory;
+export default BlogCategore;
 
-export const getServerSideProps = async (context) => {
-  const { slug } = context.query;
-  return { props: { slug:slug } };
-};
+// export const getServerSideProps = async (context) => {
+//   const { slug } = context.query;
+//   return { props: { slug:slug } };
+// };

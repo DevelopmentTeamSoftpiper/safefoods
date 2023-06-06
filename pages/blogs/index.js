@@ -1,51 +1,68 @@
-import PageArticles from '@/components/elements/PageArticles';
-import { fetchDataFromApi, getData } from '@/utils/api';
-import Link from 'next/link';
-import React from 'react'
+import PageArticles from "@/components/elements/PageArticles";
+import { fetchDataFromApi, getData } from "@/utils/api";
+import Link from "next/link";
+import React from "react";
+import { useEffect } from "react";
+import { useState } from "react";
 
-const Blog = ({blogs,blogCats}) => {
-  console.log('blog page', blogs);
+const Blog = () => {
+  const [blogs, setBlogs] = useState(null);
+  const [blogCats, setBlogCats] = useState(null);
+
+  const getBlogs = async () => {
+    const blogs = await getData("/api/admin/blog/getAll");
+    setBlogs(blogs);
+  };
+  
+  const getBlogCats = async () => {
+    const blogCats = await getData(`/api/admin/sub-blog/getAll`);
+    setBlogCats(blogCats);
+  };
+
+  useEffect(() => {
+    getBlogs();
+    getBlogCats();
+  }, []);
+
+  console.log("blog page", blogs);
   return (
     <main className="main px-5">
-    <div
-      className="page-header text-center"
-      style={{ backgroundImage: 'url("assets/images/page-header-bg.jpg")' }}
-    >
-      <div className="container">
-        <h1 className="page-title">
-          Safefood Blogs
-        </h1>
+      <div
+        className="page-header text-center"
+        style={{ backgroundImage: 'url("assets/images/page-header-bg.jpg")' }}
+      >
+        <div className="container">
+          <h1 className="page-title">Safefood Blogs</h1>
+        </div>
+        {/* End .container */}
       </div>
-      {/* End .container */}
-    </div>
-    {/* End .page-header */}
-    <nav aria-label="breadcrumb" className="breadcrumb-nav mb-3">
-      <div className="container">
-        <ol className="breadcrumb">
-          <li className="breadcrumb-item">
-            <Link href="/">Home</Link>
-          </li>
-          <li className="breadcrumb-item">
-            <Link href="/">Blogs</Link>
-          </li>
-          <li className="breadcrumb-item active" aria-current="page">
-            Listing
-          </li>
-        </ol>
-      </div>
-      {/* End .container */}
-    </nav>
-    {/* End .breadcrumb-nav */}
-    <div className="page-content">
-      <div className="container">
-        <div className="row">
-          <div className="col-lg-9">
-            {blogs?.blogs?.map((blog)=>(
-         <PageArticles key={blog?.id} blog={blog}/>
+      {/* End .page-header */}
+      <nav aria-label="breadcrumb" className="breadcrumb-nav mb-3">
+        <div className="container">
+          <ol className="breadcrumb">
+            <li className="breadcrumb-item">
+              <Link href="/">Home</Link>
+            </li>
+            <li className="breadcrumb-item">
+              <Link href="/">Blogs</Link>
+            </li>
+            <li className="breadcrumb-item active" aria-current="page">
+              Listing
+            </li>
+          </ol>
+        </div>
+        {/* End .container */}
+      </nav>
+      {/* End .breadcrumb-nav */}
+      <div className="page-content">
+        <div className="container">
+          <div className="row">
+            <div className="col-lg-9">
+              {blogs?.blogs?.map((blog) => (
+                <PageArticles key={blog?.id} blog={blog} />
+              ))}
 
-            ))}
-
-            {/* <nav aria-label="Page navigation">
+              {/* <nav aria-label="Page navigation">
               <ul className="pagination">
                 <li className="page-item disabled">
                   <a
@@ -85,11 +102,11 @@ const Blog = ({blogs,blogCats}) => {
                 </li>
               </ul>
             </nav> */}
-          </div>
-          {/* End .col-lg-9 */}
-          <aside className="col-lg-3">
-            <div className="sidebar">
-              {/* <div className="widget widget-search">
+            </div>
+            {/* End .col-lg-9 */}
+            <aside className="col-lg-3">
+              <div className="sidebar">
+                {/* <div className="widget widget-search">
                 <h3 className="widget-title">Search</h3>
         
                 <form action="#">
@@ -110,48 +127,43 @@ const Blog = ({blogs,blogCats}) => {
                   </button>
                 </form>
               </div> */}
-              {/* End .widget */}
-              <div className="widget widget-cats">
-                <h3 className="widget-title">Categories</h3>
-                {/* End .widget-title */}
-                <ul>
-                {blogCats?.subBlogs?.map((cat)=>(
+                {/* End .widget */}
+                <div className="widget widget-cats">
+                  <h3 className="widget-title">Categories</h3>
+                  {/* End .widget-title */}
+                  <ul>
+                    {blogCats?.subBlogs?.map((cat) => (
                       <li key={cat?.id}>
-                      <a href={`/blogs/category/${cat?.slug}`}>
-                        {cat?.title}
-                      </a>
-                    </li>
-                  ))}
- 
-                </ul>
+                        <a href={`/blogs/category/${cat?.slug}`}>
+                          {cat?.title}
+                        </a>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
               </div>
-  
-            </div>
-            {/* End .sidebar */}
-          </aside>
-          {/* End .col-lg-3 */}
+              {/* End .sidebar */}
+            </aside>
+            {/* End .col-lg-3 */}
+          </div>
+          {/* End .row */}
         </div>
-        {/* End .row */}
+        {/* End .container */}
       </div>
-      {/* End .container */}
-    </div>
-    {/* End .page-content */}
-  </main>
-  )
-}
-
-export default Blog
-
-
-export async function getServerSideProps(context) {
-  const blogs = await getData("/api/admin/blog/getAll");
-  const blogCats=  await getData(
-    `/api/admin/sub-blog/getAll`
+      {/* End .page-content */}
+    </main>
   );
-  return {
-    props: {
-      blogs,
-      blogCats
-    },
-  };
-}
+};
+
+export default Blog;
+
+// export async function getServerSideProps(context) {
+//   const blogs = await getData("/api/admin/blog/getAll");
+//   const blogCats = await getData(`/api/admin/sub-blog/getAll`);
+//   return {
+//     props: {
+//       blogs,
+//       blogCats,
+//     },
+//   };
+// }
